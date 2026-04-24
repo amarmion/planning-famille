@@ -97,6 +97,10 @@
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
 
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
         .toggle-form {
             text-align: center;
             margin-top: 20px;
@@ -125,6 +129,7 @@
             border-radius: 8px;
             text-align: center;
             font-weight: 600;
+            min-height: 20px;
         }
 
         .message.success {
@@ -154,18 +159,18 @@
             <!-- FORMULAIRE CONNEXION -->
             <form id="loginForm" class="hidden-form" onsubmit="handleLogin(event)">
                 <h2 style="margin-bottom: 20px; color: #333;">Connexion</h2>
-                
+
                 <div class="form-group">
                     <label for="loginEmail">📧 Email :</label>
-                    <input type="email" id="loginEmail" required>
+                    <input type="email" id="loginEmail" placeholder="votre@email.com" required>
                 </div>
 
                 <div class="form-group">
                     <label for="loginPassword">🔐 Mot de passe :</label>
-                    <input type="password" id="loginPassword" required>
+                    <input type="password" id="loginPassword" placeholder="Votre mot de passe" required>
                 </div>
 
-                <button type="submit" class="submit-btn">🔓 Connexion</button>
+                <button type="submit" class="submit-btn">🔓 Se connecter</button>
 
                 <div class="toggle-form">
                     Pas de compte ? <a onclick="toggleForm()">S'inscrire</a>
@@ -175,20 +180,20 @@
             <!-- FORMULAIRE INSCRIPTION -->
             <form id="signupForm" onsubmit="handleSignup(event)">
                 <h2 style="margin-bottom: 20px; color: #333;">Créer un compte</h2>
-                
+
                 <div class="form-group">
                     <label for="signupName">👤 Nom :</label>
-                    <input type="text" id="signupName" required>
+                    <input type="text" id="signupName" placeholder="Votre nom" required>
                 </div>
 
                 <div class="form-group">
                     <label for="signupEmail">📧 Email :</label>
-                    <input type="email" id="signupEmail" required>
+                    <input type="email" id="signupEmail" placeholder="votre@email.com" required>
                 </div>
 
                 <div class="form-group">
                     <label for="signupPassword">🔐 Mot de passe :</label>
-                    <input type="password" id="signupPassword" required>
+                    <input type="password" id="signupPassword" placeholder="Min 6 caractères" required>
                 </div>
 
                 <button type="submit" class="submit-btn">✅ Créer un compte</button>
@@ -205,85 +210,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
 
-    <script>
-        // ✅ VOTRE VRAIE CONFIG FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyBYKeXpqIHzxvB8byZ-ujozhcrKRTpSibE",
-            authDomain: "planning-famille-cda1a.firebaseapp.com",
-            databaseURL: "https://planning-famille-cda1a-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "planning-famille-cda1a",
-            storageBucket: "planning-famille-cda1a.firebasestorage.app",
-            messagingSenderId: "720570302220",
-            appId: "1:720570302220:web:d8e830783665b1ed2cd329",
-            measurementId: "G-ZK8WGQW19G"
-        };
-
-        // Initialiser Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
-
-        console.log("✅ Firebase connecté!");
-
-        function toggleForm() {
-            document.getElementById('loginForm').classList.toggle('hidden-form');
-            document.getElementById('signupForm').classList.toggle('hidden-form');
-            document.getElementById('headerText').textContent = 
-                document.getElementById('loginForm').classList.contains('hidden-form') 
-                    ? 'Créer un nouveau compte' 
-                    : 'Se connecter';
-            document.getElementById('message').innerHTML = '';
-        }
-
-        function showMessage(text, type) {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.className = 'message ' + type;
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    showMessage('✅ Connexion réussie!', 'success');
-                    setTimeout(() => {
-                        window.location.href = "index.html";
-                    }, 1000);
-                })
-                .catch((error) => {
-                    showMessage('❌ Erreur: ' + error.message, 'error');
-                });
-        }
-
-        function handleSignup(e) {
-            e.preventDefault();
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((result) => {
-                    database.ref('families/' + result.user.uid).set({
-                        owner: email,
-                        members: [{
-                            id: result.user.uid,
-                            name: name,
-                            email: email
-                        }]
-                    });
-
-                    showMessage('✅ Compte créé! Redirection...', 'success');
-                    setTimeout(() => {
-                        window.location.href = "index.html";
-                    }, 1500);
-                })
-                .catch((error) => {
-                    showMessage('❌ Erreur: ' + error.message, 'error');
-                });
-        }
-    </script>
+    <!-- VOTRE SCRIPT AUTH -->
+    <script src="auth.js"></script>
 </body>
 </html>
