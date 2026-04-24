@@ -1,60 +1,49 @@
+// sw.js
 const CACHE_NAME = 'planning-famille-v1';
-const ASSETS = [
+const urlsToCache = [
+  '/',
   '/index.html',
-  '/manifest.json'
+  '/styles.css',
+  '/app.js'
 ];
 
-// Installation
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('✅ Cache installé');
-      return cache.addAll(ASSETS);
+      return cache.addAll(urlsToCache).catch(() => {});
     })
   );
   self.skipWaiting();
 });
 
-// Activation
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      )
-    )
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
   self.clients.claim();
 });
 
-// Fetch — offline first
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request).then(response => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        return response;
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request).then(fetchResponse => {
+        return caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, fetchResponse.clone());
+          return fetchResponse;
+        });
+      }).catch(() => {
+        return caches.match('/index.html');
       });
-    }).catch(() => caches.match('/index.html'))
-  );
-});
-
-// Notifications push
-self.addEventListener('push', event => {
-  const data = event.data?.json() || {};
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'Planning Famille', {
-      body: data.body || 'Vous avez un événement',
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
-      vibrate: [200, 100, 200],
-      data: { url: data.url || '/' }
     })
   );
-});
-
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  event.waitUntil(clients.openWindow(event.notification.data.url));
 });
