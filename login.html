@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planning Famille - Connexion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .auth-content {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .toggle-form button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .toggle-form button:hover {
+            color: #764ba2;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .hidden-form {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .auth-container {
+                border-radius: 10px;
+            }
+
+            .auth-content {
+                padding: 30px 20px;
+            }
+
+            .auth-header {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <!-- FORMULAIRE CONNEXION -->
+        <div id="loginForm">
+            <div class="auth-header">
+                <h1>📅 Planning Famille</h1>
+                <p>Bienvenue ! Connectez-vous</p>
+            </div>
+            <div class="auth-content">
+                <div id="message"></div>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">📧 Email</label>
+                        <input type="email" id="loginEmail" placeholder="votre@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">🔐 Mot de passe</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="submit-btn">🔓 Se connecter</button>
+                </form>
+                <div class="toggle-form">
+                    Pas de compte ? 
+                    <button onclick="toggleForms()">Créer un compte</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORMULAIRE INSCRIPTION -->
+        <div id="signupForm" class="hidden-form">
+            <div class="auth-header">
+                <h1>📅 Planning Famille</h1>
+                <p>Créer un nouveau compte</p>
+            </div>
+            <div class="auth-content">
+                <div id="message"></div>
+                <form onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="signupName">👤 Nom</label>
+                        <input type="text" id="signupName" placeholder="Votre nom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">📧 Email</label>
+                        <input type="email" id="signupEmail" placeholder="votre@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">🔐 Mot de passe</label>
+                        <input type="password" id="signupPassword" placeholder="••••••••" minlength="6" required>
+                    </div>
+                    <button type="submit" class="submit-btn">✅ Créer un compte</button>
+                </form>
+                <div class="toggle-form">
+                    Vous avez déjà un compte ? 
+                    <button onclick="toggleForms()">Se connecter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
+
+    <script>
+        // 🔴 REMPLACEZ CECI PAR VOTRE CONFIG FIREBASE (identique à index.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBYKeXpqIHzxv88byZ-ujozhcrKRTpSiBE",
+            authDomain: "planning-famille-cda1a.firebaseapp.com",
+            databaseURL: "https://planning-famille-cda1a-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "planning-famille-cda1a",
+            storageBucket: "planning-famille-cda1a.appspot.com",
+            messagingSenderId: "720570302220",
+            appId: "1:720570302220:web:d8e830783665b1ed2cd329"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Vérifier si l'utilisateur est déjà connecté
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                window.location.href = "index.html";
+            }
+        });
+
+        function toggleForms() {
+            document.getElementById('loginForm').classList.toggle('hidden-form');
+            document.getElementById('signupForm').classList.toggle('hidden-form');
+            document.getElementById('message').innerHTML = '';
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    showMessage('✅ Connexion réussie!', 'success');
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 1000);
+                })
+                .catch((error) => {
+                    showMessage('❌ ' + error.message, 'error');
+                });
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((result) => {
+                    // Créer le profil utilisateur dans la base de données
+                    database.ref('families/' + result.user.uid).set({
+                        owner: email,
+                        members: [{
+                            id: result.user.uid,
+                            name: name,
+                            email: email
+                        }]
+                    });
+
+                    showMessage('✅ Compte créé! Connexion en cours...', 'success');
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 1500);
+                })
+                .catch((error) => {
+                    showMessage('❌ ' + error.message, 'error');
+                });
+        }
+    </script>
+</body>
+</html>
