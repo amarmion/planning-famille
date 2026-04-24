@@ -206,22 +206,24 @@
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
 
     <script>
-        // ⬇️⬇️⬇️ VOTRE CONFIG FIREBASE VA ICI ⬇️⬇️⬇️
+        // ✅ VOTRE VRAIE CONFIG FIREBASE
         const firebaseConfig = {
-            apiKey: "VOTRE_API_KEY",
-            authDomain: "votre-projet.firebaseapp.com",
-            databaseURL: "https://votre-projet.firebasedatabase.app",
-            projectId: "votre-projet",
-            storageBucket: "votre-projet.appspot.com",
-            messagingSenderId: "VOTRE_SENDER_ID",
-            appId: "VOTRE_APP_ID"
+            apiKey: "AIzaSyBYKeXpqIHzxvB8byZ-ujozhcrKRTpSibE",
+            authDomain: "planning-famille-cda1a.firebaseapp.com",
+            databaseURL: "https://planning-famille-cda1a-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "planning-famille-cda1a",
+            storageBucket: "planning-famille-cda1a.firebasestorage.app",
+            messagingSenderId: "720570302220",
+            appId: "1:720570302220:web:d8e830783665b1ed2cd329",
+            measurementId: "G-ZK8WGQW19G"
         };
-        // ⬆️⬆️⬆️ REMPLACEZ LES VALEURS ⬆️⬆️⬆️
 
         // Initialiser Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
+
+        console.log("✅ Firebase connecté!");
 
         function toggleForm() {
             document.getElementById('loginForm').classList.toggle('hidden-form');
@@ -252,7 +254,7 @@
                     }, 1000);
                 })
                 .catch((error) => {
-                    showMessage('❌ ' + error.message, 'error');
+                    showMessage('❌ Erreur: ' + error.message, 'error');
                 });
         }
 
@@ -273,17 +275,15 @@
                         }]
                     });
 
-                    showMessage('✅ Compte créé! Connexion en cours...', 'success');
+                    showMessage('✅ Compte créé! Redirection...', 'success');
                     setTimeout(() => {
                         window.location.href = "index.html";
                     }, 1500);
                 })
                 .catch((error) => {
-                    showMessage('❌ ' + error.message, 'error');
+                    showMessage('❌ Erreur: ' + error.message, 'error');
                 });
         }
-
-        console.log("✅ Script login chargé!");
     </script>
 </body>
 </html>
