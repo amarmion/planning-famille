@@ -5,19 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planning Famille</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -26,19 +20,13 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
         }
-        
         header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
             text-align: center;
         }
-        
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        
+        header h1 { font-size: 2.5em; margin-bottom: 10px; }
         .controls {
             display: flex;
             gap: 10px;
@@ -46,7 +34,6 @@
             flex-wrap: wrap;
             justify-content: center;
         }
-        
         button {
             background: white;
             color: #667eea;
@@ -58,45 +45,22 @@
             font-weight: bold;
             transition: all 0.3s;
         }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .btn-add {
-            background: #4CAF50;
-            color: white;
-            font-size: 1.2em;
-        }
-        
-        .btn-add:hover {
-            background: #45a049;
-        }
-        
-        .calendar {
-            padding: 30px;
-        }
-        
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn-add { background: #4CAF50; color: white; font-size: 1.2em; }
+        .btn-add:hover { background: #45a049; }
+        .calendar { padding: 30px; }
         .month-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }
-        
-        .month-header h2 {
-            font-size: 2em;
-            color: #333;
-        }
-        
+        .month-header h2 { font-size: 2em; color: #333; }
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 10px;
-            margin-bottom: 30px;
         }
-        
         .day-header {
             text-align: center;
             font-weight: bold;
@@ -104,75 +68,51 @@
             padding: 10px;
             border-bottom: 2px solid #667eea;
         }
-        
         .day-cell {
             border: 1px solid #ddd;
             border-radius: 10px;
-            padding: 15px;
-            min-height: 150px;
+            padding: 10px;
+            min-height: 120px;
             background: #f9f9f9;
-            transition: all 0.3s;
             cursor: pointer;
+            transition: all 0.3s;
         }
-        
-        .day-cell:hover {
-            background: #f0f0f0;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-        
-        .day-cell.other-month {
-            color: #ccc;
-            background: #fafafa;
-        }
-        
-        .day-number {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-        
-        .events-list {
-            font-size: 0.85em;
-            max-height: 100px;
-            overflow-y: auto;
-        }
-        
+        .day-cell:hover { background: #f0f0f0; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        .day-cell.other-month { color: #ccc; background: #fafafa; }
+        .day-number { font-weight: bold; color: #333; margin-bottom: 8px; font-size: 1.1em; }
         .event-item {
             background: #667eea;
             color: white;
-            padding: 5px 8px;
+            padding: 4px 8px;
             border-radius: 5px;
             margin: 3px 0;
-            font-size: 0.8em;
-            word-break: break-word;
+            font-size: 0.78em;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
         .event-delete {
             background: #ff4444;
             color: white;
             border: none;
             border-radius: 3px;
-            padding: 2px 6px;
+            padding: 2px 5px;
             cursor: pointer;
-            font-size: 0.8em;
-            margin-left: 5px;
+            font-size: 0.75em;
+            margin-left: 4px;
         }
-        
-        .event-delete:hover {
-            background: #cc0000;
-        }
-          <div class="container">
+    </style>
+</head>
+<body>
+
+    <div class="container">
         <header>
             <h1>📅 Planning Famille</h1>
             <p>Organisez vos événements en famille</p>
             <div class="controls">
-                <button class="btn-add" onclick="openAddModal()">➕ Ajouter un événement</button>
-                <button onclick="previousMonth()">◀ Mois précédent</button>
-                <button onclick="nextMonth()">Mois suivant ▶</button>
+                <button class="btn-add" onclick="openAddModal()">➕ Ajouter</button>
+                <button onclick="previousMonth()">◀ Précédent</button>
+                <button onclick="nextMonth()">Suivant ▶</button>
                 <button onclick="logout()">🚪 Déconnexion</button>
             </div>
         </header>
@@ -185,28 +125,21 @@
         </div>
     </div>
 
-    <!-- MODAL AJOUTER ÉVÉNEMENT -->
+    <!-- MODAL AJOUTER -->
     <div id="addModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
-        <div style="background:white; padding:30px; border-radius:15px; max-width:500px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+        <div style="background:white; padding:30px; border-radius:15px; max-width:500px; width:90%;">
             <h2>➕ Ajouter un événement</h2>
             <form id="eventForm" onsubmit="addEvent(event)">
-                <div style="margin: 15px 0;">
-                    <label for="eventDate">Date :</label>
+                <div style="margin:15px 0;">
+                    <label>Date :</label>
                     <input type="date" id="eventDate" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
                 </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="eventTitle">Titre :</label>
-                    <input type="text" id="eventTitle" placeholder="Ex: Anniversaire de Marie" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
+                <div style="margin:15px 0;">
+                    <label>Titre :</label>
+                    <input type="text" id="eventTitle" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
                 </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="eventDescription">Description :</label>
-                    <textarea id="eventDescription" placeholder="Détails de l'événement" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; height:100px;"></textarea>
-                </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="eventCategory">Catégorie :</label>
+                <div style="margin:15px 0;">
+                    <label>Catégorie :</label>
                     <select id="eventCategory" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
                         <option value="Anniversaire">🎂 Anniversaire</option>
                         <option value="Réunion">📞 Réunion</option>
@@ -217,77 +150,20 @@
                         <option value="Autre">📌 Autre</option>
                     </select>
                 </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="eventAssignee">Attribuer à :</label>
-                    <select id="eventAssignee" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                        <option value="">Sélectionner un membre...</option>
-                    </select>
-                </div>
-                
                 <div style="display:flex; gap:10px; margin-top:20px;">
                     <button type="submit" style="flex:1; background:#4CAF50; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">✅ Ajouter</button>
-                    <button type="button" onclick="closeAddModal()" style="flex:1; background:#ff9800; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">❌ Annuler</button>
+                    <button type="button" onclick="closeAddModal()" style="flex:1; background:#ff9800; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer;">❌ Annuler</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL ÉDITER ÉVÉNEMENT -->
-    <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
-        <div style="background:white; padding:30px; border-radius:15px; max-width:500px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
-            <h2>✏️ Modifier l'événement</h2>
-            <form id="editForm" onsubmit="updateEvent(event)">
-                <div style="margin: 15px 0;">
-                    <label for="editEventDate">Date :</label>
-                    <input type="date" id="editEventDate" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="editEventTitle">Titre :</label>
-                    <input type="text" id="editEventTitle" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="editEventDescription">Description :</label>
-                    <textarea id="editEventDescription" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; height:100px;"></textarea>
-                </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="editEventCategory">Catégorie :</label>
-                    <select id="editEventCategory" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                        <option value="Anniversaire">🎂 Anniversaire</option>
-                        <option value="Réunion">📞 Réunion</option>
-                        <option value="Sport">⚽ Sport</option>
-                        <option value="Médecin">🏥 Médecin</option>
-                        <option value="École">🎓 École</option>
-                        <option value="Loisir">🎨 Loisir</option>
-                        <option value="Autre">📌 Autre</option>
-                    </select>
-                </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="editEventAssignee">Attribuer à :</label>
-                    <select id="editEventAssignee" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                        <option value="">Sélectionner un membre...</option>
-                    </select>
-                </div>
-                
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button type="submit" style="flex:1; background:#4CAF50; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">✅ Modifier</button>
-                    <button type="button" onclick="closeEditModal()" style="flex:1; background:#ff9800; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">❌ Annuler</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- FIREBASE SCRIPTS -->
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
+    <!-- FIREBASE COMPAT (version 9 compat = fonctionne sans module) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
     <script>
-        // 🔴 REMPLACEZ CECI PAR VOTRE CONFIG FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBYKeXpqIHzxv88byZ-ujozhcrKRTpSiBE",
             authDomain: "planning-famille-cda1a.firebaseapp.com",
@@ -298,347 +174,128 @@
             appId: "1:720570302220:web:d8e830783665b1ed2cd329"
         };
 
-        // Initialiser Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // VARIABLES GLOBALES
         let currentDate = new Date();
         let currentUser = null;
         let allEvents = {};
-        let familyMembers = [];
-        let editingEventId = null;
 
-        // GESTION AUTHENTIFICATION
+        // VÉRIFIER CONNEXION
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
-                console.log("✅ Utilisateur connecté:", user.email);
-                loadFamilyMembers();
-                renderCalendar();
+                loadEvents();
             } else {
-                currentUser = null;
-                window.location.href = "login.html"; // Créer page login
+                window.location.href = "login.html";
             }
         });
 
-        // CHARGER LES MEMBRES DE LA FAMILLE
-        function loadFamilyMembers() {
-            const ref = database.ref('families/' + currentUser.uid + '/members');
-            ref.on('value', (snapshot) => {
-                familyMembers = [];
-                snapshot.forEach((child) => {
-                    familyMembers.push({
-                        id: child.key,
-                        name: child.val().name,
-                        email: child.val().email
-                    });
-                });
-                updateAssigneeSelects();
-                loadEvents();
-            });
-        }
-
-        // CHARGER LES ÉVÉNEMENTS
+        // CHARGER ÉVÉNEMENTS
         function loadEvents() {
             const ref = database.ref('families/' + currentUser.uid + '/events');
             ref.on('value', (snapshot) => {
                 allEvents = {};
                 snapshot.forEach((child) => {
-                    const eventData = child.val();
-                    const dateKey = eventData.date;
-                    
-                    if (!allEvents[dateKey]) {
-                        allEvents[dateKey] = [];
-                    }
-                    
-                    allEvents[dateKey].push({
-                        id: child.key,
-                        ...eventData
-                    });
+                    const e = child.val();
+                    if (!allEvents[e.date]) allEvents[e.date] = [];
+                    allEvents[e.date].push({ id: child.key, ...e });
                 });
                 renderCalendar();
             });
         }
 
-        // OUVRIR MODAL AJOUTER
+        // OUVRIR/FERMER MODAL
         function openAddModal() {
             document.getElementById('addModal').style.display = 'flex';
-            document.getElementById('eventDate').valueAsDate = currentDate;
         }
-
-        // FERMER MODAL AJOUTER
         function closeAddModal() {
             document.getElementById('addModal').style.display = 'none';
             document.getElementById('eventForm').reset();
         }
 
-        // OUVRIR MODAL ÉDITER
-        function openEditModal(eventId, dateKey) {
-            editingEventId = eventId;
-            const event = allEvents[dateKey].find(e => e.id === eventId);
-            
-            if (!event) return;
-            
-            document.getElementById('editEventDate').value = event.date;
-            document.getElementById('editEventTitle').value = event.title;
-            document.getElementById('editEventDescription').value = event.description || '';
-            document.getElementById('editEventCategory').value = event.category || 'Autre';
-            document.getElementById('editEventAssignee').value = event.assignee || '';
-            
-            document.getElementById('editModal').style.display = 'flex';
-        }
-
-        // FERMER MODAL ÉDITER
-        function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-            document.getElementById('editForm').reset();
-            editingEventId = null;
-        }
-
-        // AJOUTER UN ÉVÉNEMENT
+        // AJOUTER ÉVÉNEMENT
         function addEvent(e) {
             e.preventDefault();
-            
             const date = document.getElementById('eventDate').value;
             const title = document.getElementById('eventTitle').value;
-            const description = document.getElementById('eventDescription').value;
             const category = document.getElementById('eventCategory').value;
-            const assignee = document.getElementById('eventAssignee').value;
 
-            if (!date || !title) {
-                alert('❌ Veuillez remplir tous les champs obligatoires');
-                return;
-            }
-
-            const eventRef = database.ref('families/' + currentUser.uid + '/events').push();
-            
-            eventRef.set({
-                date: date,
-                title: title,
-                description: description,
-                category: category,
-                assignee: assignee,
-                createdAt: new Date().toISOString(),
-                createdBy: currentUser.email
+            database.ref('families/' + currentUser.uid + '/events').push({
+                date, title, category,
+                createdBy: currentUser.email,
+                createdAt: new Date().toISOString()
             }).then(() => {
-                console.log("✅ Événement ajouté!");
                 closeAddModal();
-                alert('✅ Événement ajouté avec succès!');
-            }).catch((error) => {
-                console.error("❌ Erreur:", error);
-                alert('❌ Erreur lors de l\'ajout: ' + error.message);
+            }).catch((err) => {
+                alert('❌ Erreur: ' + err.message);
             });
         }
 
-        // MODIFIER UN ÉVÉNEMENT
-        function updateEvent(e) {
-            e.preventDefault();
-            
-            if (!editingEventId) return;
-            
-            const date = document.getElementById('editEventDate').value;
-            const title = document.getElementById('editEventTitle').value;
-            const description = document.getElementById('editEventDescription').value;
-            const category = document.getElementById('editEventCategory').value;
-            const assignee = document.getElementById('editEventAssignee').value;
-
-            const eventRef = database.ref('families/' + currentUser.uid + '/events/' + editingEventId);
-            
-            eventRef.update({
-                date: date,
-                title: title,
-                description: description,
-                category: category,
-                assignee: assignee,
-                updatedAt: new Date().toISOString()
-            }).then(() => {
-                console.log("✅ Événement modifié!");
-                closeEditModal();
-                alert('✅ Événement modifié avec succès!');
-            }).catch((error) => {
-                console.error("❌ Erreur:", error);
-                alert('❌ Erreur lors de la modification: ' + error.message);
-            });
-        }
-
-        // SUPPRIMER UN ÉVÉNEMENT
+        // SUPPRIMER ÉVÉNEMENT
         function deleteEvent(eventId) {
-            if (!confirm('⚠️ Êtes-vous sûr de vouloir supprimer cet événement?')) {
-                return;
+            if (confirm('Supprimer cet événement?')) {
+                database.ref('families/' + currentUser.uid + '/events/' + eventId).remove();
             }
-            
-            const eventRef = database.ref('families/' + currentUser.uid + '/events/' + eventId);
-            
-            eventRef.remove().then(() => {
-                console.log("✅ Événement supprimé!");
-                alert('✅ Événement supprimé!');
-            }).catch((error) => {
-                console.error("❌ Erreur:", error);
-                alert('❌ Erreur lors de la suppression: ' + error.message);
-            });
         }
 
-        // METTRE À JOUR LES SÉLECTEURS ASSIGNEE
-        function updateAssigneeSelects() {
-            const selects = [
-                document.getElementById('eventAssignee'),
-                document.getElementById('editEventAssignee')
-            ];
-            
-            selects.forEach(select => {
-                const currentValue = select.value;
-                const options = select.querySelectorAll('option');
-                
-                // Garder la première option vide
-                while (select.options.length > 1) {
-                    select.remove(1);
-                }
-                
-                // Ajouter les membres
-                familyMembers.forEach(member => {
-                    const option = document.createElement('option');
-                    option.value = member.id;
-                    option.textContent = member.name;
-                    select.appendChild(option);
-                });
-            });
-        }
-
-        // AFFICHAGE DU CALENDRIER
+        // AFFICHER CALENDRIER
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            
-            document.getElementById('monthYear').textContent = 
+
+            document.getElementById('monthYear').textContent =
                 currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-            
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const prevLastDay = new Date(year, month, 0);
-            
-            const firstDayOfWeek = firstDay.getDay();
-            const daysInMonth = lastDay.getDate();
-            const daysInPrevMonth = prevLastDay.getDate();
-            
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            const startDay = firstDay === 0 ? 6 : firstDay - 1;
+
             let html = '';
-            
-            // En-tête des jours
-            const daysOfWeek = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-            daysOfWeek.forEach(day => {
-                html += `<div class="day-header">${day}</div>`;
+            ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].forEach(d => {
+                html += `<div class="day-header">${d}</div>`;
             });
-            
-            // Jours du mois précédent
-            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-                const dayNum = daysInPrevMonth - i;
-                html += `<div class="day-cell other-month"><div class="day-number">${dayNum}</div></div>`;
+
+            for (let i = startDay - 1; i >= 0; i--) {
+                html += `<div class="day-cell other-month"><div class="day-number">${daysInPrevMonth - i}</div></div>`;
             }
-            
-            // Jours du mois actuel
+
             for (let day = 1; day <= daysInMonth; day++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
                 const events = allEvents[dateStr] || [];
-                
                 html += `<div class="day-cell" onclick="openAddModal()">
-                    <div class="day-number">${day}</div>
-                    <div class="events-list">`;
-                
-                events.forEach(event => {
-                    html += `
-                        <div class="event-item">
-                            <span onclick="event.stopPropagation(); openEditModal('${event.id}', '${dateStr}')">${event.title}</span>
-                            <button class="event-delete" onclick="event.stopPropagation(); deleteEvent('${event.id}')">✕</button>
-                        </div>`;
+                    <div class="day-number">${day}</div>`;
+                events.forEach(ev => {
+                    html += `<div class="event-item">
+                        <span>${ev.title}</span>
+                        <button class="event-delete" onclick="event.stopPropagation();deleteEvent('${ev.id}')">✕</button>
+                    </div>`;
                 });
-                
-                html += `</div></div>`;
+                html += `</div>`;
             }
-            
-            // Jours du mois suivant
-            const totalCells = html.match(/<div class="day-/g).length - 7; // Soustraire le header
-            const remainingCells = 42 - totalCells; // 6 lignes × 7 jours
-            for (let day = 1; day <= remainingCells; day++) {
-                html += `<div class="day-cell other-month"><div class="day-number">${day}</div></div>`;
+
+            const totalDays = startDay + daysInMonth;
+            const remaining = totalDays % 7 === 0 ? 0 : 7 - (totalDays % 7);
+            for (let i = 1; i <= remaining; i++) {
+                html += `<div class="day-cell other-month"><div class="day-number">${i}</div></div>`;
             }
-            
+
             document.getElementById('calendarGrid').innerHTML = html;
         }
 
-        // NAVIGATION MOIS
         function previousMonth() {
             currentDate.setMonth(currentDate.getMonth() - 1);
             renderCalendar();
         }
-
         function nextMonth() {
             currentDate.setMonth(currentDate.getMonth() + 1);
             renderCalendar();
         }
-
-        // DÉCONNEXION
         function logout() {
-            if (confirm('🚪 Êtes-vous sûr de vouloir vous déconnecter?')) {
-                auth.signOut().then(() => {
-                    window.location.href = "login.html";
-                });
-            }
+            auth.signOut().then(() => { window.location.href = "login.html"; });
         }
-
-        console.log("✅ Script chargé avec succès!");
     </script>
-              <!-- MODAL ÉDITER ÉVÉNEMENT -->
-    <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
-        <div style="background:white; padding:30px; border-radius:15px; max-width:500px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
-            <h2>✏️ Modifier l'événement</h2>
-            <form id="editForm" onsubmit="updateEvent(event)">
-                <div style="margin: 15px 0;">
-                    <label for="editEventDate">Date :</label>
-                    <input type="date" id="editEventDate" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="editEventTitle">Titre :</label>
-                    <input type="text" id="editEventTitle" placeholder="Ex: Anniversaire de Marie" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="editEventDescription">Description :</label>
-                    <textarea id="editEventDescription" placeholder="Détails de l'événement" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; height:100px;"></textarea>
-                </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="editEventCategory">Catégorie :</label>
-                    <select id="editEventCategory" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                        <option value="Anniversaire">🎂 Anniversaire</option>
-                        <option value="Réunion">📞 Réunion</option>
-                        <option value="Sport">⚽ Sport</option>
-                        <option value="Médecin">🏥 Médecin</option>
-                        <option value="École">🎓 École</option>
-                        <option value="Loisir">🎨 Loisir</option>
-                        <option value="Autre">📌 Autre</option>
-                    </select>
-                </div>
-                
-                <div style="margin: 15px 0;">
-                    <label for="editEventAssignee">Attribuer à :</label>
-                    <select id="editEventAssignee" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                        <option value="">Sélectionner un membre...</option>
-                    </select>
-                </div>
-                
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button type="submit" style="flex:1; background:#4CAF50; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">✅ Modifier</button>
-                    <button type="button" onclick="closeEditModal()" style="flex:1; background:#ff9800; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">❌ Annuler</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
 </body>
 </html>
-
-</body>
-</html>
- 
