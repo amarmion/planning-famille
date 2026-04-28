@@ -2,32 +2,25 @@
   "name": "Planning Famille",
   "short_name": "Planning",
   "description": "Organisez votre famille simplement",
-  "start_url": "/",
+  "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#FFF8F4",
+  "background_color": "#FBF5EE",
   "theme_color": "#E8724A",
   "orientation": "portrait-primary",
+  "lang": "fr",
+  "categories": ["productivity"],
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E8724A' width='192' height='192'/><text x='50%' y='50%' font-size='100' dominant-baseline='middle' text-anchor='middle' fill='white'>📅</text></svg>",
+      "src": "icon.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23E8724A' width='192' height='192'/><text x='50%' y='50%' font-size='100' dominant-baseline='middle' text-anchor='middle' fill='white'>📅</text></svg>",
-      "sizes": "192x192",
+      "src": "icon.svg",
+      "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "maskable"
-    }
-  ],
-  "categories": ["productivity"],
-  "screenshots": [
-    {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%23FFF8F4' width='540' height='720'/><text x='50%' y='50%' font-size='120' dominant-baseline='middle' text-anchor='middle' fill='%23E8724A'>📅👨‍👩‍👦‍👦</text></svg>",
-      "sizes": "540x720",
-      "type": "image/svg+xml",
-      "form_factor": "narrow"
     }
   ]
 }
