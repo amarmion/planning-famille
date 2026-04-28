@@ -1,12 +1,13 @@
 // ===== CONFIGURATION FIREBASE =====
 const firebaseConfig = {
-    apiKey: "AIzaSyBYKeXpqIHzxv88byZ-ujozhcrKRTpSiBE", // ✅ Corrigée
+    apiKey: "AIzaSyBYKeXpqIHzxvB8byZ-ujozhcrKRTpSibE",
     authDomain: "planning-famille-cda1a.firebaseapp.com",
     databaseURL: "https://planning-famille-cda1a-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "planning-famille-cda1a",
-    storageBucket: "planning-famille-cda1a.appspot.com",
+    storageBucket: "planning-famille-cda1a.firebasestorage.app",
     messagingSenderId: "720570302220",
-    appId: "1:720570302220:web:d8e830783665b1ed2cd329"
+    appId: "1:720570302220:web:d8e830783665b1ed2cd329",
+    measurementId: "G-ZK8WGQW19G"
 };
 
 
