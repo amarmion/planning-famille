@@ -1,124 +1,56 @@
-// ===== CONFIGURATION FIREBASE =====
-const firebaseConfig = {
-    apiKey: "AIzaSyBYKeXpqIHzxvB8byZ-ujozhcrKRTpSibE",
-    authDomain: "planning-famille-cda1a.firebaseapp.com",
-    databaseURL: "https://planning-famille-cda1a-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "planning-famille-cda1a",
-    storageBucket: "planning-famille-cda1a.firebasestorage.app",
-    messagingSenderId: "720570302220",
-    appId: "1:720570302220:web:d8e830783665b1ed2cd329",
-    measurementId: "G-ZK8WGQW19G"
+import { auth } from "./firebase-config.js";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+// Comptes utilisateurs (email + PIN)
+const USERS = {
+  alban: { email: "alban@famille.local", pin: "1234", role: "parent", nom: "Alban 👨" },
+  elodie: { email: "elodie@famille.local", pin: "5678", role: "parent", nom: "Elodie 👩" },
+  papimamie: { email: "papimamie@famille.local", pin: "0000", role: "consultation", nom: "Papi/Mamie 👴👵" }
 };
 
-// ===== INITIALISATION =====
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const database = firebase.database();
-
-console.log("✅ Firebase initialisé!");
-
-// ===== FONCTIONS UTILITAIRES =====
-function showMessage(text, type) {
-    const msg = document.getElementById('message');
-    if (msg) {
-        msg.textContent = text;
-        msg.className = 'message ' + type;
+// Créer les comptes au premier lancement
+export async function initializeUsers() {
+  for (const [key, user] of Object.entries(USERS)) {
+    try {
+      await createUserWithEmailAndPassword(auth, user.email, `pin-${user.pin}`);
+      console.log(`✅ Compte créé: ${user.nom}`);
+    } catch (error) {
+      if (error.code !== "auth/email-already-in-use") {
+        console.log(`⚠️ ${user.email} existe déjà`);
+      }
     }
+  }
 }
 
-function toggleForm() {
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
-    const headerText = document.getElementById('headerText');
-    
-    loginForm.classList.toggle('hidden-form');
-    signupForm.classList.toggle('hidden-form');
-    
-    headerText.textContent = loginForm.classList.contains('hidden-form') 
-        ? 'Créer un nouveau compte' 
-        : 'Se connecter';
-    
-    document.getElementById('message').innerHTML = '';
+// Connexion par PIN
+export async function loginWithPin(username, pin) {
+  const user = USERS[username];
+  if (!user || user.pin !== pin) {
+    throw new Error("❌ Utilisateur ou PIN incorrect");
+  }
+
+  try {
+    const credential = await signInWithEmailAndPassword(auth, user.email, `pin-${pin}`);
+    console.log(`✅ Connecté: ${user.nom}`);
+    return {
+      uid: credential.user.uid,
+      username: username,
+      nom: user.nom,
+      role: user.role,
+      email: user.email
+    };
+  } catch (error) {
+    throw new Error("❌ Erreur de connexion");
+  }
 }
 
-// ===== CONNEXION =====
-function handleLogin(e) {
-    e.preventDefault();
-    
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
-    
-    console.log("🔐 Tentative de connexion:", email);
-    
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            console.log("✅ Connexion réussie:", userCredential.user.email);
-            showMessage('✅ Connexion réussie! Redirection...', 'success');
-            setTimeout(() => {
-                window.location.href = "index.html";
-            }, 1000);
-        })
-        .catch((error) => {
-            console.error("❌ Erreur connexion:", error.code, error.message);
-            
-            if (error.code === 'auth/user-not-found') {
-                showMessage('❌ Aucun compte avec cet email', 'error');
-            } else if (error.code === 'auth/wrong-password') {
-                showMessage('❌ Mot de passe incorrect', 'error');
-            } else if (error.code === 'auth/invalid-email') {
-                showMessage('❌ Email invalide', 'error');
-            } else if (error.code === 'auth/invalid-credential') {
-                showMessage('❌ Email ou mot de passe incorrect', 'error');
-            } else {
-                showMessage('❌ ' + error.message, 'error');
-            }
-        });
+// Déconnexion
+export async function logout() {
+  await signOut(auth);
+  console.log("✅ Déconnecté");
 }
 
-// ===== INSCRIPTION =====
-function handleSignup(e) {
-    e.preventDefault();
-    
-    const name = document.getElementById('signupName').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPassword').value.trim();
-    
-    if (password.length < 6) {
-        showMessage('❌ Le mot de passe doit contenir au moins 6 caractères', 'error');
-        return;
-    }
-    
-    console.log("📝 Tentative de création de compte:", email);
-    
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            console.log("✅ Compte créé:", userCredential.user.email);
-            
-            // Créer la famille dans la base de données
-            return database.ref('families/' + userCredential.user.uid).set({
-                owner: email,
-                ownerName: name,
-                createdAt: new Date().toISOString()
-            });
-        })
-        .then(() => {
-            console.log("✅ Famille créée dans la base de données");
-            showMessage('✅ Compte créé avec succès! Redirection...', 'success');
-            setTimeout(() => {
-                window.location.href = "index.html";
-            }, 1000);
-        })
-        .catch((error) => {
-            console.error("❌ Erreur inscription:", error.code, error.message);
-            
-            if (error.code === 'auth/email-already-in-use') {
-                showMessage('❌ Cet email est déjà utilisé', 'error');
-            } else if (error.code === 'auth/invalid-email') {
-                showMessage('❌ Email invalide', 'error');
-            } else if (error.code === 'auth/weak-password') {
-                showMessage('❌ Mot de passe trop faible (6 caractères min)', 'error');
-            } else {
-                showMessage('❌ ' + error.message, 'error');
-            }
-        });
+// Récupérer infos utilisateur
+export function getCurrentUser() {
+  return auth.currentUser;
 }
