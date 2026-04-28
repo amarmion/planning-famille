@@ -10,15 +10,14 @@ const firebaseConfig = {
     measurementId: "G-ZK8WGQW19G"
 };
 
-
-// Initialiser Firebase
+// ===== INITIALISATION =====
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const database = firebase.database();
 
 console.log("✅ Firebase initialisé!");
 
-// ===== FONCTION: AFFICHER LES MESSAGES =====
+// ===== FONCTIONS UTILITAIRES =====
 function showMessage(text, type) {
     const msg = document.getElementById('message');
     if (msg) {
@@ -27,53 +26,56 @@ function showMessage(text, type) {
     }
 }
 
-// ===== FONCTION: BASCULER ENTRE FORMULAIRES =====
 function toggleForm() {
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
     const headerText = document.getElementById('headerText');
     
-    if (loginForm && signupForm) {
-        loginForm.classList.toggle('hidden-form');
-        signupForm.classList.toggle('hidden-form');
-        
-        headerText.textContent = loginForm.classList.contains('hidden-form') 
-            ? 'Créer un nouveau compte' 
-            : 'Se connecter';
-        
-        document.getElementById('message').innerHTML = '';
-    }
+    loginForm.classList.toggle('hidden-form');
+    signupForm.classList.toggle('hidden-form');
+    
+    headerText.textContent = loginForm.classList.contains('hidden-form') 
+        ? 'Créer un nouveau compte' 
+        : 'Se connecter';
+    
+    document.getElementById('message').innerHTML = '';
 }
 
-// ===== FONCTION: CONNEXION =====
+// ===== CONNEXION =====
 function handleLogin(e) {
     e.preventDefault();
     
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
     
-    if (!email || !password) {
-        showMessage('❌ Veuillez remplir tous les champs', 'error');
-        return;
-    }
-    
-    console.log("🔄 Tentative de connexion...");
+    console.log("🔐 Tentative de connexion:", email);
     
     auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-            console.log("✅ Connexion réussie!");
+        .then((userCredential) => {
+            console.log("✅ Connexion réussie:", userCredential.user.email);
             showMessage('✅ Connexion réussie! Redirection...', 'success');
             setTimeout(() => {
                 window.location.href = "index.html";
-            }, 1500);
+            }, 1000);
         })
         .catch((error) => {
-            console.error("❌ Erreur connexion:", error);
-            showMessage('❌ Email ou mot de passe incorrect', 'error');
+            console.error("❌ Erreur connexion:", error.code, error.message);
+            
+            if (error.code === 'auth/user-not-found') {
+                showMessage('❌ Aucun compte avec cet email', 'error');
+            } else if (error.code === 'auth/wrong-password') {
+                showMessage('❌ Mot de passe incorrect', 'error');
+            } else if (error.code === 'auth/invalid-email') {
+                showMessage('❌ Email invalide', 'error');
+            } else if (error.code === 'auth/invalid-credential') {
+                showMessage('❌ Email ou mot de passe incorrect', 'error');
+            } else {
+                showMessage('❌ ' + error.message, 'error');
+            }
         });
 }
 
-// ===== FONCTION: INSCRIPTION =====
+// ===== INSCRIPTION =====
 function handleSignup(e) {
     e.preventDefault();
     
@@ -81,85 +83,42 @@ function handleSignup(e) {
     const email = document.getElementById('signupEmail').value.trim();
     const password = document.getElementById('signupPassword').value.trim();
     
-    if (!name || !email || !password) {
-        showMessage('❌ Veuillez remplir tous les champs', 'error');
-        return;
-    }
-    
     if (password.length < 6) {
-        showMessage('❌ Le mot de passe doit faire au moins 6 caractères', 'error');
+        showMessage('❌ Le mot de passe doit contenir au moins 6 caractères', 'error');
         return;
     }
     
-    console.log("🔄 Création du compte...");
+    console.log("📝 Tentative de création de compte:", email);
     
     auth.createUserWithEmailAndPassword(email, password)
-        .then((result) => {
-            console.log("✅ Compte créé!");
+        .then((userCredential) => {
+            console.log("✅ Compte créé:", userCredential.user.email);
             
-            // Sauvegarder les infos dans la base de données
-            database.ref('families/' + result.user.uid).set({
+            // Créer la famille dans la base de données
+            return database.ref('families/' + userCredential.user.uid).set({
                 owner: email,
                 ownerName: name,
-                createdAt: new Date().toISOString(),
-                members: [{
-                    id: result.user.uid,
-                    name: name,
-                    email: email
-                }]
-            })
-            .then(() => {
-                console.log("✅ Données sauvegardées!");
-                showMessage('✅ Compte créé! Redirection...', 'success');
-                setTimeout(() => {
-                    window.location.href = "index.html";
-                }, 1500);
-            })
-            .catch((dbError) => {
-                console.error("❌ Erreur base de données:", dbError);
-                showMessage('❌ Erreur sauvegarde: ' + dbError.message, 'error');
+                createdAt: new Date().toISOString()
             });
         })
+        .then(() => {
+            console.log("✅ Famille créée dans la base de données");
+            showMessage('✅ Compte créé avec succès! Redirection...', 'success');
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 1000);
+        })
         .catch((error) => {
-            console.error("❌ Erreur création compte:", error);
+            console.error("❌ Erreur inscription:", error.code, error.message);
             
             if (error.code === 'auth/email-already-in-use') {
                 showMessage('❌ Cet email est déjà utilisé', 'error');
             } else if (error.code === 'auth/invalid-email') {
                 showMessage('❌ Email invalide', 'error');
+            } else if (error.code === 'auth/weak-password') {
+                showMessage('❌ Mot de passe trop faible (6 caractères min)', 'error');
             } else {
-                showMessage('❌ Erreur: ' + error.message, 'error');
+                showMessage('❌ ' + error.message, 'error');
             }
-        });
-}
-
-// ===== FONCTION: VÉRIFIER SI CONNECTÉ =====
-function checkAuth() {
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            console.log("✅ Utilisateur connecté:", user.email);
-            // L'utilisateur est connecté, rediriger vers index.html
-            if (window.location.pathname.includes('login.html')) {
-                window.location.href = "index.html";
-            }
-        } else {
-            console.log("❌ Utilisateur non connecté");
-            // L'utilisateur n'est pas connecté
-            if (!window.location.pathname.includes('login.html')) {
-                window.location.href = "login.html";
-            }
-        }
-    });
-}
-
-// ===== FONCTION: DÉCONNEXION =====
-function handleLogout() {
-    auth.signOut()
-        .then(() => {
-            console.log("✅ Déconnecté!");
-            window.location.href = "login.html";
-        })
-        .catch((error) => {
-            console.error("❌ Erreur déconnexion:", error);
         });
 }
