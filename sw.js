@@ -1,10 +1,9 @@
-// sw.js
 const CACHE_NAME = 'planning-famille-v1';
 const urlsToCache = [
-  '/',
   '/index.html',
-  '/styles.css',
-  '/app.js'
+  '/login.html',
+  '/auth.js',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', event => {
@@ -33,7 +32,15 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  
+
+  // 🔴 Ignorer Firebase et CDN
+  if (event.request.url.includes('firebaseio.com') ||
+      event.request.url.includes('googleapis.com') ||
+      event.request.url.includes('gstatic.com') ||
+      event.request.url.includes('firebaseapp.com')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request).then(fetchResponse => {
