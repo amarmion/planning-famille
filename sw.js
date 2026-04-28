@@ -1,9 +1,8 @@
-const CACHE_NAME = 'planning-famille-v1';
+const CACHE_NAME = 'planning-famille-v2';
 const urlsToCache = [
   '/index.html',
-  '/login.html',
-  '/auth.js',
-  '/manifest.json'
+  '/manifest.json',
+  '/icon.svg'
 ];
 
 self.addEventListener('install', event => {
@@ -33,11 +32,12 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
-  // 🔴 Ignorer Firebase et CDN
+  // Ignorer Firebase et CDN externes
   if (event.request.url.includes('firebaseio.com') ||
       event.request.url.includes('googleapis.com') ||
       event.request.url.includes('gstatic.com') ||
-      event.request.url.includes('firebaseapp.com')) {
+      event.request.url.includes('firebaseapp.com') ||
+      event.request.url.includes('firebase.google.com')) {
     return;
   }
 
