@@ -1,301 +1,1434 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planning Famille</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        header h1 { font-size: 2.5em; margin-bottom: 10px; }
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        button {
-            background: white;
-            color: #667eea;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .btn-add { background: #4CAF50; color: white; font-size: 1.2em; }
-        .btn-add:hover { background: #45a049; }
-        .calendar { padding: 30px; }
-        .month-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        .month-header h2 { font-size: 2em; color: #333; }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-        }
-        .day-header {
-            text-align: center;
-            font-weight: bold;
-            color: #667eea;
-            padding: 10px;
-            border-bottom: 2px solid #667eea;
-        }
-        .day-cell {
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 10px;
-            min-height: 120px;
-            background: #f9f9f9;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .day-cell:hover { background: #f0f0f0; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
-        .day-cell.other-month { color: #ccc; background: #fafafa; }
-        .day-number { font-weight: bold; color: #333; margin-bottom: 8px; font-size: 1.1em; }
-        .event-item {
-            background: #667eea;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 5px;
-            margin: 3px 0;
-            font-size: 0.78em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .event-delete {
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            padding: 2px 5px;
-            cursor: pointer;
-            font-size: 0.75em;
-            margin-left: 4px;
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#E8724A"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="Planning"/>
+  <link rel="manifest" href="manifest.json"/>
+  <title>Planning Famille</title>
+
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #FBF5EE;
+      --primary: #E8724A;
+      --primary-light: #FDEEE8;
+      --primary-dark: #C95A35;
+      --card: #FFFCF8;
+      --card-border: #F0E8DE;
+      --text: #2D2016;
+      --text-soft: #8B7355;
+      --text-muted: #B8A898;
+      --white: #FFFFFF;
+      --shadow: 0 2px 12px rgba(232,114,74,0.10);
+      --shadow-lg: 0 8px 32px rgba(232,114,74,0.18);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-xs: 6px;
+      /* Membres */
+      --alban: #F4A27A;
+      --elodie: #F2A8C4;
+      --louis: #7EC8E3;
+      --mael: #90D4A3;
+      /* Catégories */
+      --cat-famille: #7DAF8A;
+      --cat-couple: #E8A0B4;
+      --cat-taches: #F0A830;
+      --cat-enfants: #5BA8D4;
+      --cat-soi: #9B7FD4;
+      --cat-sortie: #F06830;
+      /* Safe areas iOS */
+      --sat: env(safe-area-inset-top);
+      --sab: env(safe-area-inset-bottom);
+      --sal: env(safe-area-inset-left);
+      --sar: env(safe-area-inset-right);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+    }
+
+    /* ===== LAYOUT ===== */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ===== HEADER ===== */
+    .app-header {
+      background: var(--white);
+      padding: calc(12px + var(--sat)) 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .app-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.3px;
+    }
+
+    .header-avatars {
+      display: flex;
+      gap: 6px;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: calc(80px + var(--sab));
+    }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: var(--white);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      padding-bottom: var(--sab);
+      z-index: 100;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 10px 0;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
+      transition: color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .nav-item.active { color: var(--primary); }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      transition: transform 0.2s;
+    }
+
+    .nav-item:active svg { transform: scale(0.88); }
+
+    /* ===== TABS ===== */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    /* ===== AVATAR ===== */
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 2px solid white;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar.sm { width: 28px; height: 28px; font-size: 10px; }
+    .avatar.lg { width: 56px; height: 56px; font-size: 18px; }
+    .avatar.xl { width: 80px; height: 80px; font-size: 26px; }
+
+    /* ===== FAB ===== */
+    .fab {
+      position: fixed;
+      bottom: calc(72px + var(--sab));
+      right: calc(20px + var(--sar));
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-lg);
+      z-index: 99;
+      transition: transform 0.2s, background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .fab:active { transform: scale(0.92); background: var(--primary-dark); }
+
+    .fab svg { width: 28px; height: 28px; }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 100%;
+      max-width: 480px;
+      background: var(--white);
+      border-radius: 24px 24px 0 0;
+      padding: 0 0 calc(24px + var(--sab));
+      z-index: 201;
+      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+      max-height: 92dvh;
+      overflow-y: auto;
+    }
+
+    .modal-sheet.open {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .modal-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--card-border);
+      border-radius: 2px;
+      margin: 12px auto 0;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 8px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-soft);
+      font-size: 18px;
+    }
+
+    /* ===== FORM ===== */
+    .form-section {
+      padding: 8px 20px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus { border-color: var(--primary); }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .form-row .form-input { flex: 1; }
+
+    /* ===== CHIPS ===== */
+    .chips-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--card-border);
+      background: var(--white);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .chip.selected {
+      border-color: transparent;
+      color: white;
+    }
+
+    .chip-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ===== TOGGLE ===== */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+    }
+
+    .toggle-label {
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .toggle {
+      width: 48px;
+      height: 28px;
+      background: var(--card-border);
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: none;
+      flex-shrink: 0;
+    }
+
+    .toggle.on { background: var(--primary); }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle.on::after { transform: translateX(20px); }
+
+    /* ===== AGENDA ===== */
+    .agenda-header {
+      padding: 16px 20px 8px;
+    }
+
+    .view-toggle {
+      display: flex;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      gap: 3px;
+      border: 1px solid var(--card-border);
+    }
+
+    .view-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+      background: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-soft);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .view-btn.active {
+      background: var(--white);
+      color: var(--primary);
+      box-shadow: var(--shadow);
+    }
+
+    .week-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px 8px;
+    }
+
+    .week-nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1.5px solid var(--card-border);
+      background: var(--white);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-soft);
+      transition: all 0.15s;
+    }
+
+    .week-nav-btn:active { background: var(--primary-light); }
+
+    .week-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Semaine strips */
+    .week-strip {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      padding: 0 16px 12px;
+    }
+
+    .day-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 4px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .day-cell:active { background: var(--primary-light); }
+
+    .day-cell.today .day-num {
+      background: var(--primary);
+      color: white;
+    }
+
+    .day-cell.selected {
+      background: var(--primary-light);
+    }
+
+    .day-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .day-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .day-dots {
+      display: flex;
+      gap: 2px;
+      flex-wrap: wrap;
+      justify-content: center;
+      min-height: 8px;
+    }
+
+    .day-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    /* Events list */
+    .events-section {
+      padding: 0 16px;
+    }
+
+    .events-date-header {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .event-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .event-card:active { transform: scale(0.98); }
+
+    .event-color-bar {
+      width: 4px;
+      border-radius: 2px;
+      align-self: stretch;
+      min-height: 40px;
+      flex-shrink: 0;
+    }
+
+    .event-info { flex: 1; }
+
+    .event-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .event-meta {
+      font-size: 12px;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .event-avatars {
+      display: flex;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .event-avatars .avatar { margin-left: -8px; }
+    .event-avatars .avatar:first-child { margin-left: 0; }
+
+    .papi-badge {
+      font-size: 11px;
+      background: #FFF0D4;
+      color: #A06010;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    /* Grille horaire */
+    .hour-grid {
+      padding: 0 16px;
+    }
+
+    .hour-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-height: 56px;
+      border-top: 1px solid var(--card-border);
+      padding: 6px 0;
+    }
+
+    .hour-label {
+      width: 36px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .hour-events { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+
+    /* ===== TACHES ===== */
+    .tasks-section {
+      padding: 16px;
+    }
+
+    .person-tasks {
+      margin-bottom: 20px;
+    }
+
+    .person-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .person-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .task-count {
+      font-size: 12px;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    /* ===== VACANCES ===== */
+    .vacances-section {
+      padding: 16px;
+    }
+
+    .vacances-group {
+      margin-bottom: 24px;
+    }
+
+    .vacances-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .vacances-group-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .vacances-card {
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+    }
+
+    .vacances-famille { background: #EAF6EE; border: 1px solid #C2E4CB; }
+    .vacances-papi { background: #FEF0E4; border: 1px solid #F7CBAA; }
+
+    .vacances-titre {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .vacances-dates {
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .add-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: 1.5px dashed var(--card-border);
+      background: none;
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .add-btn:active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+
+    /* ===== REGLAGES ===== */
+    .settings-section {
+      padding: 16px;
+    }
+
+    .settings-group {
+      margin-bottom: 24px;
+    }
+
+    .settings-group-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 10px;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .profile-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+
+    .profile-card:active { box-shadow: var(--shadow-lg); }
+
+    .profile-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .profile-role {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .category-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+    }
+
+    .cat-color-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .cat-name {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .papi-info-box {
+      background: #FEF0E4;
+      border: 1px solid #F7CBAA;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #8B5010;
+      line-height: 1.5;
+    }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+      position: fixed;
+      top: calc(16px + var(--sat));
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 440px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: #FFF3E8;
+      border: 1px solid #F7CBAA;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow-lg);
+      pointer-events: all;
+      animation: toastIn 0.3s ease;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .toast-icon { font-size: 20px; flex-shrink: 0; }
+    .toast-msg { flex: 1; font-size: 14px; color: var(--text); font-weight: 500; }
+
+    .toast-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0 2px;
+    }
+
+    /* ===== IOS INSTALL BANNER ===== */
+    .ios-banner {
+      position: fixed;
+      bottom: calc(80px + var(--sab));
+      left: 16px;
+      right: 16px;
+      background: var(--white);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-lg);
+      z-index: 150;
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .ios-banner-text { flex: 1; font-size: 13px; color: var(--text); line-height: 1.4; }
+    .ios-banner-text strong { color: var(--primary); }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 15px; }
+
+    /* ===== EVENT DETAIL MODAL ===== */
+    .detail-category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row svg { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; }
+
+    .btn-danger {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: none;
+      background: #FEE8E8;
+      color: #C03030;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: none;
+      background: var(--primary);
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary:active { background: var(--primary-dark); }
+
+    /* ===== COLOR PALETTE ===== */
+    .color-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: transform 0.15s;
+    }
+
+    .color-swatch.selected {
+      border-color: var(--text);
+      transform: scale(1.1);
+    }
+
+    /* ===== DIVIDER ===== */
+    .divider {
+      height: 1px;
+      background: var(--card-border);
+      margin: 4px 20px;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 0; }
+  </style>
 </head>
 <body>
+<div id="app">
 
-    <div class="container">
-        <header>
-            <h1>📅 Planning Famille</h1>
-            <p>Organisez vos événements en famille</p>
-            <div class="controls">
-                <button class="btn-add" onclick="openAddModal()">➕ Ajouter</button>
-                <button onclick="previousMonth()">◀ Précédent</button>
-                <button onclick="nextMonth()">Suivant ▶</button>
-                <button onclick="logout()">🚪 Déconnexion</button>
-            </div>
-        </header>
+  <!-- HEADER -->
+  <header class="app-header">
+    <h1 id="page-title">📅 Agenda</h1>
+    <div class="header-avatars" id="header-avatars"></div>
+  </header>
 
-        <div class="calendar">
-            <div class="month-header">
-                <h2 id="monthYear"></h2>
-            </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ===== AGENDA ===== -->
+    <div id="tab-agenda" class="tab-content active">
+      <div class="agenda-header">
+        <div class="view-toggle">
+          <button class="view-btn active" id="btn-semaine" onclick="setView('semaine')">Semaine</button>
+          <button class="view-btn" id="btn-jour" onclick="setView('jour')">Jour</button>
         </div>
+      </div>
+
+      <div class="week-nav">
+        <button class="week-nav-btn" onclick="navPrev()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="week-label" id="nav-label"></span>
+        <button class="week-nav-btn" onclick="navNext()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <!-- Vue semaine -->
+      <div id="view-semaine">
+        <div class="week-strip" id="week-strip"></div>
+        <div class="events-section" id="day-events-list"></div>
+      </div>
+
+      <!-- Vue jour -->
+      <div id="view-jour" style="display:none">
+        <div class="hour-grid" id="hour-grid"></div>
+      </div>
     </div>
 
-    <!-- MODAL AJOUTER -->
-    <div id="addModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
-        <div style="background:white; padding:30px; border-radius:15px; max-width:500px; width:90%;">
-            <h2>➕ Ajouter un événement</h2>
-            <form id="eventForm" onsubmit="addEvent(event)">
-                <div style="margin:15px 0;">
-                    <label>Date :</label>
-                    <input type="date" id="eventDate" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                </div>
-                <div style="margin:15px 0;">
-                    <label>Titre :</label>
-                    <input type="text" id="eventTitle" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                </div>
-                <div style="margin:15px 0;">
-                    <label>Catégorie :</label>
-                    <select id="eventCategory" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px;">
-                        <option value="Anniversaire">🎂 Anniversaire</option>
-                        <option value="Réunion">📞 Réunion</option>
-                        <option value="Sport">⚽ Sport</option>
-                        <option value="Médecin">🏥 Médecin</option>
-                        <option value="École">🎓 École</option>
-                        <option value="Loisir">🎨 Loisir</option>
-                        <option value="Autre">📌 Autre</option>
-                    </select>
-                </div>
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button type="submit" style="flex:1; background:#4CAF50; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">✅ Ajouter</button>
-                    <button type="button" onclick="closeAddModal()" style="flex:1; background:#ff9800; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer;">❌ Annuler</button>
-                </div>
-            </form>
-        </div>
+    <!-- ===== TACHES ===== -->
+    <div id="tab-taches" class="tab-content">
+      <div class="tasks-section" id="tasks-content"></div>
     </div>
 
-    <!-- FIREBASE COMPAT (version 9 compat = fonctionne sans module) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <!-- ===== VACANCES ===== -->
+    <div id="tab-vacances" class="tab-content">
+      <div class="vacances-section">
+        <div class="vacances-group">
+          <div class="vacances-group-header">
+            <div class="vacances-group-title">🌴 Vacances en famille</div>
+            <button class="add-btn" onclick="openVacancesModal('famille')">+ Ajouter</button>
+          </div>
+          <div id="vacances-famille-list"></div>
+        </div>
 
-    <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBYKeXpqIHzxvB8byZ-ujozhcrKRTpSibE",
-    authDomain: "planning-famille-cda1a.firebaseapp.com",
-    databaseURL: "https://planning-famille-cda1a-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "planning-famille-cda1a",
-    storageBucket: "planning-famille-cda1a.firebasestorage.app",
-    messagingSenderId: "720570302220",
-    appId: "1:720570302220:web:d8e830783665b1ed2cd329",
-    measurementId: "G-ZK8WGQW19G"
-};
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
+        <div class="vacances-group">
+          <div class="vacances-group-header">
+            <div class="vacances-group-title">🏡 Chez Papi-Mamie</div>
+            <button class="add-btn" onclick="openVacancesModal('papi')">+ Ajouter</button>
+          </div>
+          <div id="vacances-papi-list"></div>
+        </div>
+      </div>
+    </div>
 
-        let currentDate = new Date();
-        let currentUser = null;
-        let allEvents = {};
+    <!-- ===== REGLAGES ===== -->
+    <div id="tab-reglages" class="tab-content">
+      <div class="settings-section">
 
-        // VÉRIFIER CONNEXION
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                loadEvents();
-            } else {
-                window.location.href = "login.html";
-            }
-        });
+        <!-- Profils -->
+        <div class="settings-group">
+          <div class="settings-group-title">👤 Profils</div>
+          <div class="profile-grid" id="profiles-grid"></div>
+        </div>
 
-        // CHARGER ÉVÉNEMENTS
-        function loadEvents() {
-            const ref = database.ref('families/' + currentUser.uid + '/events');
-            ref.on('value', (snapshot) => {
-                allEvents = {};
-                snapshot.forEach((child) => {
-                    const e = child.val();
-                    if (!allEvents[e.date]) allEvents[e.date] = [];
-                    allEvents[e.date].push({ id: child.key, ...e });
-                });
-                renderCalendar();
-            });
-        }
+        <!-- Catégories -->
+        <div class="settings-group">
+          <div class="settings-group-title">🏷️ Catégories</div>
+          <div id="categories-list"></div>
+          <button class="add-btn" style="margin-top:8px" onclick="openNewCategoryModal()">+ Nouvelle catégorie</button>
+        </div>
 
-        // OUVRIR/FERMER MODAL
-        function openAddModal() {
-            document.getElementById('addModal').style.display = 'flex';
-        }
-        function closeAddModal() {
-            document.getElementById('addModal').style.display = 'none';
-            document.getElementById('eventForm').reset();
-        }
+        <!-- Papi-Mamie -->
+        <div class="settings-group">
+          <div class="settings-group-title">🏡 Papi-Mamie</div>
+          <div class="papi-info-box">
+            Papi-Mamie voient uniquement les événements cochés <strong>"Visible Papi-Mamie"</strong>.<br><br>
+            La possibilité de leur partager un lien en lecture seule sera disponible prochainement.
+          </div>
+        </div>
 
-        // AJOUTER ÉVÉNEMENT
-        function addEvent(e) {
-            e.preventDefault();
-            const date = document.getElementById('eventDate').value;
-            const title = document.getElementById('eventTitle').value;
-            const category = document.getElementById('eventCategory').value;
+      </div>
+    </div>
 
-            database.ref('families/' + currentUser.uid + '/events').push({
-                date, title, category,
-                createdBy: currentUser.email,
-                createdAt: new Date().toISOString()
-            }).then(() => {
-                closeAddModal();
-            }).catch((err) => {
-                alert('❌ Erreur: ' + err.message);
-            });
-        }
+  </main>
 
-        // SUPPRIMER ÉVÉNEMENT
-        function deleteEvent(eventId) {
-            if (confirm('Supprimer cet événement?')) {
-                database.ref('families/' + currentUser.uid + '/events/' + eventId).remove();
-            }
-        }
+  <!-- FAB -->
+  <button class="fab" onclick="openEventModal()" aria-label="Ajouter un événement">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+  </button>
 
-        // AFFICHER CALENDRIER
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="agenda" onclick="switchTab('agenda', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Agenda
+    </button>
+    <button class="nav-item" data-tab="taches" onclick="switchTab('taches', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 11 12 14 22 4"/>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
+      Tâches
+    </button>
+    <button class="nav-item" data-tab="vacances" onclick="switchTab('vacances', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 17l4-8 4 4 4-6 4 10"/><line x1="3" y1="21" x2="21" y2="21"/>
+      </svg>
+      Vacances
+    </button>
+    <button class="nav-item" data-tab="reglages" onclick="switchTab('reglages', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      Réglages
+    </button>
+  </nav>
 
-            document.getElementById('monthYear').textContent =
-                currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+</div>
 
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const daysInPrevMonth = new Date(year, month, 0).getDate();
-            const startDay = firstDay === 0 ? 6 : firstDay - 1;
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
 
-            let html = '';
-            ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].forEach(d => {
-                html += `<div class="day-header">${d}</div>`;
-            });
+<!-- ===== MODAL ÉVÉNEMENT ===== -->
+<div class="modal-overlay" id="event-overlay" onclick="closeEventModal()"></div>
+<div class="modal-sheet" id="event-sheet">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <span class="modal-title">Nouvel événement</span>
+    <button class="modal-close" onclick="closeEventModal()">✕</button>
+  </div>
 
-            for (let i = startDay - 1; i >= 0; i--) {
-                html += `<div class="day-cell other-month"><div class="day-number">${daysInPrevMonth - i}</div></div>`;
-            }
+  <div class="form-section">
+    <label class="form-label">Catégorie</label>
+    <div class="chips-wrap" id="cat-chips"></div>
+  </div>
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-                const events = allEvents[dateStr] || [];
-                html += `<div class="day-cell" onclick="openAddModal()">
-                    <div class="day-number">${day}</div>`;
-                events.forEach(ev => {
-                    html += `<div class="event-item">
-                        <span>${ev.title}</span>
-                        <button class="event-delete" onclick="event.stopPropagation();deleteEvent('${ev.id}')">✕</button>
-                    </div>`;
-                });
-                html += `</div>`;
-            }
+  <div class="form-section" style="margin-top:4px">
+    <label class="form-label">Activité</label>
+    <div id="activity-select-wrap">
+      <select class="form-input" id="activity-select" onchange="onActivitySelect(this.value)">
+        <option value="">-- Choisir --</option>
+      </select>
+    </div>
+    <div id="activity-custom-wrap" style="display:none; margin-top:8px">
+      <div style="display:flex;gap:8px">
+        <input class="form-input" id="activity-custom" placeholder="Activité personnalisée..." style="flex:1"/>
+        <button onclick="saveCustomActivity()" style="padding:12px 14px;border-radius:var(--radius-sm);background:var(--primary);color:white;border:none;font-size:18px;cursor:pointer">+</button>
+      </div>
+    </div>
+    <input class="form-input" id="activity-free" placeholder="Décrivez l'activité..." style="display:none;margin-top:8px"/>
+  </div>
 
-            const totalDays = startDay + daysInMonth;
-            const remaining = totalDays % 7 === 0 ? 0 : 7 - (totalDays % 7);
-            for (let i = 1; i <= remaining; i++) {
-                html += `<div class="day-cell other-month"><div class="day-number">${i}</div></div>`;
-            }
+  <div class="form-section" style="margin-top:4px">
+    <label class="form-label">Adresse (optionnel)</label>
+    <input class="form-input" id="event-address" placeholder="12 rue des Lilas, Lyon..."/>
+  </div>
 
-            document.getElementById('calendarGrid').innerHTML = html;
-        }
+  <div class="form-section" style="margin-top:4px">
+    <div class="form-row">
+      <div style="flex:1">
+        <label class="form-label">Date</label>
+        <input class="form-input" type="date" id="event-date"/>
+      </div>
+      <div style="flex:1">
+        <label class="form-label">Heure (opt.)</label>
+        <input class="form-input" type="time" id="event-time"/>
+      </div>
+    </div>
+  </div>
 
-        function previousMonth() {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        }
-        function nextMonth() {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        }
-        function logout() {
-            auth.signOut().then(() => { window.location.href = "login.html"; });
-        }
-    </script>
-</body>
-</html>
+  <div class="form-section" style="margin-top:4px">
+    <label class="form-label">Participants</label>
+    <div class="chips-wrap" id="participant-chips"></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="toggle-row">
+    <span class="toggle-label">🏡 Visible par Papi-Mamie</span>
+    <button class="toggle" id="papi-toggle" onclick="this.classList.toggle('on')"></button>
+  </div>
+  <div class="divider"></div>
+
+  <div class="form-section" style="margin-top:8px">
+    <button class="btn-primary" onclick="saveEvent()">Enregistrer l'événement</button>
+  </div>
+</div>
+
+<!-- ===== MODAL DÉTAIL ÉVÉNEMENT ===== -->
+<div class="modal-overlay" id="detail-overlay" onclick="closeDetailModal()"></div>
+<div class="modal-sheet" id="detail-sheet">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <span class="modal-title">Détail</span>
+    <button class="modal-close" onclick="closeDetailModal()">✕</button>
+  </div>
+  <div id="detail-content" style="padding:0 20px 8px"></div>
+</div>
+
+<!-- ===== MODAL PROFIL ===== -->
+<div class="modal-overlay" id="profile-overlay" onclick="closeProfileModal()"></div>
+<div class="modal-sheet" id="profile-sheet">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <span class="modal-title">Modifier le profil</span>
+    <button class="modal-close" onclick="closeProfileModal()">✕</button>
+  </div>
+  <div style="padding:0 20px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 0">
+      <div id="profile-avatar-preview" class="avatar xl" style="cursor:pointer" onclick="document.getElementById('profile-photo-input').click()"></div>
+      <span style="font-size:13px;color:var(--text-soft)">Appuyer pour changer la photo</span>
+      <input type="file" id="profile-photo-input" accept="image/*" style="display:none" onchange="onProfilePhotoChange(event)"/>
+    </div>
+    <div style="margin-bottom:14px">
+      <label class="form-label">Prénom</label>
+      <input class="form-input" id="profile-name-input" placeholder="Prénom..."/>
+    </div>
+    <div style="margin-bottom:14px">
+      <label class="form-label">Couleur</label>
+      <div class="color-palette" id="profile-color-palette"></div>
+      <input type="color" id="profile-color-custom" style="margin-top:8px;width:100%;height:40px;border:1.5px solid var(--card-border);border-radius:var(--radius-sm);padding:2px 4px;cursor:pointer;background:var(--bg)"/>
+    </div>
+    <button class="btn-primary" onclick="saveProfile()" style="margin-bottom:12px">Enregistrer</button>
+  </div>
+</div>
+
+<!-- ===== MODAL NOUVELLE CATÉGORIE ===== -->
+<div class="modal-overlay" id="newcat-overlay" onclick="closeNewCategoryModal()"></div>
+<div class="modal-sheet" id="newcat-sheet">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <span class="modal-title">Nouvelle catégorie</span>
+    <button class="modal-close" onclick="closeNewCategoryModal()">✕</button>
+  </div>
+  <div style="padding:0 20px 16px">
+    <div style="margin-bottom:14px">
+      <label class="form-label">Nom</label>
+      <input class="form-input" id="newcat-name" placeholder="Ex: Sport, Médecin..."/>
+    </div>
+    <div style="margin-bottom:14px">
+      <label class="form-label">Couleur</label>
+      <div class="color-palette" id="newcat-color-palette"></div>
+      <input type="color" id="newcat-color-custom" value="#E8724A" style="margin-top:8px;width:100%;height:40px;border:1.5px solid var(--card-border);border-radius:var(--radius-sm);padding:2px 4px;cursor:pointer;background:var(--bg)"/>
+    </div>
+    <button class="btn-primary" onclick="saveNewCategory()">Créer la catégorie</button>
+  </div>
+</div>
+
+<!-- ===== MODAL VACANCES ===== -->
+<div class="modal-overlay" id="vacances-overlay" onclick="closeVacancesModal()"></div>
+<div class="modal-sheet" id="vacances-sheet">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <span class="modal-title" id="vacances-modal-title">Ajouter des vacances</span>
+    <button class="modal-close" onclick="closeVacancesModal()">✕</button>
+  </div>
+  <div style="padding:0 20px 16px">
+    <div style="margin-bottom:14px">
+      <label class="form-label">Titre</label>
+      <input class="form-input" id="vacances-titre-input" placeholder="Ex: Côte d'Azur, Bretagne..."/>
+    </div>
+    <div class="form-row" style="margin-bottom:14px">
+      <div style="flex:1">
+        <label class="form-label">Du</label>
+        <input class="form-input" type="date" id="vacances-start"/>
+      </div>
+      <div style="flex:1">
+        <label class="form-label">Au</label>
+        <input class="form-input" type="date" id="vacances-end"/>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveVacances()">Enregistrer</button>
+  </div>
+</div>
+
+<!-- IOS INSTALL BANNER -->
+<div class="ios-banner" id="ios-banner" style="display:none">
+  <span style="font-size:28px">📲</span>
+  <div class="ios-banner-text">
+    <strong>Installer l'app</strong><br>
+    Appuyez sur <strong>Partager</strong> puis <strong>"Sur l'écran d'accueil"</strong>
+  </div>
+  <button onclick="document.getElementById('ios-banner').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted)">✕</button>
+</div>
+<script>
+// ============================================================
+// DATA & STATE
+// ============================================================
+const PALETTE = ['#E8724A','#F4A27A','#F2A8C4','#7EC8E3','#90D4A3',
+                 '#7DAF8A','#F0A830','#5BA8D4','#9B7FD4','#F06830',
+                 '#C8A870','#6B8FA8'];
+
+let state = loadState();
+
+function defaultState() {
+  return {
+    members: [
+      { id:'alban',  name:'Alban',  role:'Père',   color:'#F4A27A', initials:'AL', photo:null },
+      { id:'elodie', name:'Élodie', role:'Mère',   color:'#F2A8C4', initials:'EL', photo:null },
+      { id:'louis',  name:'Louis',  role:'Enfant', color:'#7EC8E3', initials:'LO', photo:null },
+      { id:'mael',   name:'Maël',   role:'Enfant', color:'#90D4A3', initials:'MA', photo:null }
+    ],
+    categories: [
+      { id:'famille',  name:'Famille',       color:'#7DAF8A', activities:[] },
+      { id:'couple',   name:'Couple',         color:'#E8A0B4', activities:[] },
+      { id:'taches',   name:'Tâches',         color:'#F0A830',
+        activities:['Jardin','Ménage','Cuisine','Lessive','Courses','Devoir Maël'] },
+      { id:'enfants',  name:'Enfants',        color:'#5BA8D4',
+        activities:['Emmener à l\'école','Emmener à la crèche','Prendre à l\'école',
+                    'Prendre à la crèche','Douche Louis','Douche Maël','Douche enfants',
+                    'Coucher Louis','Habiller Louis','Emmener Maël au sport',
+                    'Aller chercher Maël au sport','Emmener chez le médecin'] },
+      { id:'soi',      name:'Temps pour soi', color:'#9B7FD4', activities:[] },
+      { id:'sortie',   name:'Sortie seul(e)', color:'#F06830', activities:[] }
+    ],
+    events: [],
+    vacancesFamille: [],
+    vacancesPapi: [],
+    customActivities: {}
+  };
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('planningFamille');
+    if (s) return { ...defaultState(), ...JSON.parse(s) };
+  } catch(e) {}
+  return defaultState();
+}
+
+function saveState() {
+  localStorage.setItem('planningFamille', JSON.stringify(state));
+}
+
+// ============================================================
+// CURRENT VIEW STATE
+// ============================================================
+let currentView = 'semaine';
+let currentDate = new Date();
+let selectedDay = new Date();
+let editingMemberId = null;
+let vacancesType = 'famille';
+
+// ============================================================
+// UTILS
+// ============================================================
+const DAYS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const MONTHS = ['janvier','février','mars','avril','mai','juin',
+                'juillet','août','septembre','octobre','novembre','décembre'];
+
+function formatDate(d) {
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function formatDateShort(d) {
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+}
+
+function isSameDay(a, b) {
+  return a.getFullYear()===b.getFullYear() &&
+         a.getMonth()===b.getMonth() &&
+         a.getDate()===b.getDate();
+}
+
+function dateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getMember(id) { return state.members.find(m=>m.id===id); }
+function getCategory(id) { return state.categories.find(c=>c.id===id); }
+
+function getWeekStart(d) {
+  const day = new Date(d);
+  const dow = day.getDay();
+  const diff = dow === 0 ? -6 : 1 - dow;
+  day.setDate(day.getDate() + diff);
+  day.setHours(0,0,0,0);
+  return day;
+}
+
+// ============================================================
+// AVATAR RENDER
+// ============================================================
+function renderAvatar(member, sizeClass='') {
+  const m = typeof member === 'string' ? getMember(member) : member;
+  if (!m) return '';
+  const sc = sizeClass ? ` ${sizeClass}` : '';
+  if (m.photo) {
+    return `<div class="avatar${sc}" style="background:${m.color}">
+      <img src="${m.photo}" alt="${m.name}"/>
+    </div>`;
+  }
+  return `<div class="avatar${sc}" style="background:${m.color}">${m.initials}</div>`;
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, icon='✅') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span class="toast-icon">${icon}</span>
+    <span class="toast-msg">${msg}</span>
+    <button class="toast-close" onclick="this.parentElement.remove()">✕</button>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 5000);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  el.classList.add('active');
+  const titles = { agenda:'📅 Agenda', taches:'✅ Tâches', vacances:'🏖️ Vacances', reglages:'⚙️ Réglages' };
+  document.getElementById('page-title').textContent = titles[tab];
+  if (tab === 'taches') renderTasks();
+  if (tab === 'vacances') renderVacances();
+  if (tab === 'reglages') renderSettings();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('btn-semaine').classList.toggle('active', v==='semaine');
+  document.getElementById('btn-jour').classList.toggle('active', v==='jour');
+  document.getElementById('view-semaine').style.display = v==='semaine' ? 'block' : 'none';
+  document.getElementById('view-jour').style.display = v==='jour' ? 'block' : 'none';
+  renderAgenda();
+}
+
+function navPrev() {
+  if (currentView === 'semaine') { currentDate.setDate(currentDate.getDate()-7); selectedDay = new Date(currentDate); }
+  else { currentDate.setDate(currentDate.getDate()-1); selectedDay = new Date(currentDate); }
+  renderAgenda();
+}
+
+function navNext() {
+  if (currentView === 'semaine') { currentDate.setDate(currentDate.getDate()+7); selectedDay = new Date(currentDate); }
+  else { currentDate.setDate(currentDate.getDate()+1); selectedDay = new Date(currentDate); }
+  renderAgenda();
+}
+
+// ============================================================
+// AGENDA RENDER
+// ============================================================
+function renderAgenda() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  if (currentView === 'semaine') {
+    const ws = getWe
